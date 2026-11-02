@@ -1,0 +1,183 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Ngồi Tu Online</title>
+  <style>
+    :root { color-scheme: dark; --gold:#f4d58a; --panel:rgba(16,25,48,.86); }
+    * { box-sizing:border-box; }
+    body {
+      margin:0; min-height:100vh; color:#f4f0e6;
+      font-family:system-ui,-apple-system,Segoe UI,sans-serif;
+      background:linear-gradient(180deg,rgba(5,10,25,.42),rgba(5,10,25,.95)),
+        radial-gradient(ellipse at 50% 20%,#4b5f91 0,#1c294b 38%,#090f20 78%);
+    }
+    .wrap { width:min(1050px,94%); margin:auto; padding:28px 0 44px; }
+    header { text-align:center; margin-bottom:22px; }
+    h1 { margin:0; color:var(--gold); font-size:clamp(2rem,6vw,3.6rem); letter-spacing:2px; text-shadow:0 0 24px #d8a94c66; }
+    .subtitle { color:#c7d1e9; margin-top:8px; }
+    .layout { display:grid; grid-template-columns:1.2fr .8fr; gap:18px; }
+    .panel { background:var(--panel); border:1px solid #8798bb44; border-radius:18px; padding:22px; box-shadow:0 14px 35px #0005; }
+    .sect { color:var(--gold); margin:0 0 15px; }
+    .avatar { width:130px;height:130px;border-radius:50%;margin:8px auto 16px;display:grid;place-items:center;
+      font-size:60px;border:2px solid #f4d58a88;background:radial-gradient(circle,#8f79c8,#273d70 65%,#101a33);
+      box-shadow:0 0 35px #8b78ff44; animation:glow 3s ease-in-out infinite; }
+    @keyframes glow { 50% { box-shadow:0 0 55px #a79aff88; transform:scale(1.025); } }
+    .center { text-align:center; }
+    .name { font-size:1.3rem;font-weight:700; }
+    .realm { color:var(--gold); margin:5px 0 18px; }
+    .statrow { display:flex;justify-content:space-between;gap:12px;margin:12px 0;color:#d7def0; }
+    .statrow strong { color:white; }
+    .bar { height:12px;background:#070d1b;border-radius:99px;overflow:hidden;border:1px solid #ffffff20; }
+    .fill { height:100%;width:0;background:linear-gradient(90deg,#6ee7f9,#bba4ff,#f4d58a);transition:width .3s; }
+    .hint { color:#aebbd6;font-size:.9rem;line-height:1.5; }
+    button { cursor:pointer;border:0;border-radius:12px;padding:12px 16px;font-weight:750;font-size:1rem; }
+    .primary { width:100%;margin-top:18px;color:#21172b;background:linear-gradient(100deg,#f4d58a,#fff0b8); }
+    .secondary { margin-top:9px;width:100%;color:#eef1ff;background:#33466e; }
+    button:hover { filter:brightness(1.08); }
+    input { width:100%;padding:12px 13px;border-radius:10px;border:1px solid #7586a8;background:#0b1428;color:white;font-size:1rem; }
+    .joinrow { display:grid;grid-template-columns:1fr auto;gap:8px;margin-bottom:18px; }
+    .joinrow button { color:#21172b;background:var(--gold); }
+    ol { list-style:none;padding:0;margin:0; }
+    li { display:flex;align-items:center;gap:10px;padding:12px 8px;border-bottom:1px solid #ffffff12; }
+    li:last-child { border-bottom:0; }
+    .rank { color:var(--gold);font-weight:800;width:28px; }
+    .pname { flex:1;min-width:0;overflow-wrap:anywhere; }
+    .prealm { color:#aebbd6;font-size:.84rem; }
+    .pqi { font-variant-numeric:tabular-nums;font-weight:700;white-space:nowrap; }
+    .status { margin-top:12px;color:#aebbd6;font-size:.88rem; }
+    .toast { min-height:22px;color:#f4d58a;text-align:center;margin-top:12px; }
+    footer { text-align:center;color:#8190ad;font-size:.85rem;margin-top:20px; }
+    @media(max-width:720px) { .layout { grid-template-columns:1fr; } .panel { padding:18px; } }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <h1>☯ NGỒI TU ONLINE ☯</h1>
+      <div class="subtitle">Tĩnh tâm tu luyện — cùng đạo hữu tranh bảng thiên kiêu</div>
+    </header>
+    <div class="layout">
+      <section class="panel">
+        <h2 class="sect">Động phủ của bạn</h2>
+        <div class="joinrow">
+          <input id="nameInput" maxlength="18" placeholder="Nhập đạo hiệu của bạn">
+          <button id="joinBtn">Vào game</button>
+        </div>
+        <div class="center">
+          <div class="avatar">☯</div>
+          <div id="playerName" class="name">Đạo hữu chưa vào game</div>
+          <div id="realm" class="realm">Phàm Nhân</div>
+        </div>
+        <div class="statrow"><span>Linh khí</span><strong id="qi">0</strong></div>
+        <div class="bar"><div id="fill" class="fill"></div></div>
+        <div id="progressText" class="hint" style="margin-top:8px">Vào game để bắt đầu hành trình tu tiên.</div>
+        <button id="cultivateBtn" class="primary" disabled>✨ Vận công tu luyện (+10)</button>
+        <button id="toggleBtn" class="secondary" disabled>Tạm dừng ngồi tu</button>
+        <div id="status" class="status">Chưa kết nối máy chủ.</div>
+        <div id="toast" class="toast"></div>
+      </section>
+      <section class="panel">
+        <h2 class="sect">🏆 Bảng Thiên Kiêu</h2>
+        <ol id="leaderboard"><li><span class="hint">Đang chờ đạo hữu...</span></li></ol>
+        <p class="hint">Bảng xếp hạng cập nhật theo linh khí của người đang kết nối.</p>
+      </section>
+    </div>
+    <footer>Bản demo nhiều người chơi · Dữ liệu sẽ mất khi người chơi rời máy chủ.</footer>
+  </main>
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+    const $ = (id) => document.getElementById(id);
+    let joined = false;
+    let me = null;
+    const realmGoals = [
+      {name:"Phàm Nhân", need:0},
+      {name:"Luyện Khí", need:100},
+      {name:"Trúc Cơ", need:500},
+      {name:"Kim Đan", need:1500},
+      {name:"Nguyên Anh", need:4000},
+      {name:"Hóa Thần", need:10000},
+      {name:"Độ Kiếp", need:25000},
+      {name:"Chân Tiên", need:60000}
+    ];
+    const fmt = (n) => Number(n || 0).toLocaleString("vi-VN");
+    function currentRealm(qi) {
+      let r = realmGoals[0], next = null;
+      for (let i=0;i<realmGoals.length;i++) {
+        if (qi >= realmGoals[i].need) r = realmGoals[i];
+        else { next = realmGoals[i]; break; }
+      }
+      return {r, next};
+    }
+    function renderMe(p) {
+      if (!p) return;
+      me = p;
+      const {r,next} = currentRealm(p.qi);
+      $("playerName").textContent = p.name;
+      $("realm").textContent = r.name;
+      $("qi").textContent = fmt(p.qi);
+      $("cultivateBtn").disabled = false;
+      $("toggleBtn").disabled = false;
+      $("toggleBtn").textContent = p.cultivating ? "Tạm dừng ngồi tu" : "Tiếp tục ngồi tu";
+      if (next) {
+        const progress = Math.max(0, Math.min(100, (p.qi-r.need)/(next.need-r.need)*100));
+        $("fill").style.width = progress + "%";
+        $("progressText").textContent = `Còn ${fmt(next.need-p.qi)} linh khí để đạt ${next.name}.`;
+      } else {
+        $("fill").style.width = "100%";
+        $("progressText").textContent = "Bạn đã đạt cảnh giới cao nhất trong bản demo!";
+      }
+    }
+    $("joinBtn").addEventListener("click", () => {
+      const name = $("nameInput").value.trim() || "Đạo hữu";
+      socket.emit("player:join", name);
+      joined = true;
+      $("status").textContent = "Đã gửi yêu cầu vào động phủ...";
+    });
+    $("nameInput").addEventListener("keydown", e => { if (e.key === "Enter") $("joinBtn").click(); });
+    $("cultivateBtn").addEventListener("click", () => {
+      if (joined) socket.emit("player:cultivate");
+    });
+    $("toggleBtn").addEventListener("click", () => {
+      if (joined) socket.emit("player:toggle");
+    });
+    socket.on("connect", () => $("status").textContent = "Đã kết nối máy chủ. Nhập đạo hiệu để vào game.");
+    socket.on("disconnect", () => $("status").textContent = "Mất kết nối. Đang thử kết nối lại...");
+    socket.on("player:ready", p => {
+      joined = true;
+      renderMe(p);
+      $("status").textContent = "Đang tu luyện cùng các đạo hữu online.";
+    });
+    socket.on("player:gain", data => {
+      $("toast").textContent = `+${data.amount} linh khí! Tổng: ${fmt(data.qi)}.`;
+      setTimeout(() => { $("toast").textContent = ""; }, 1600);
+    });
+    socket.on("world:update", list => {
+      if (me) {
+        const fresh = list.find(p => p.id === socket.id);
+        if (fresh) renderMe(fresh);
+      }
+      const ol = $("leaderboard");
+      ol.replaceChildren();
+      if (!list.length) {
+        const li = document.createElement("li");
+        li.textContent = "Chưa có đạo hữu online.";
+        ol.appendChild(li);
+        return;
+      }
+      list.forEach((p, i) => {
+        const li = document.createElement("li");
+        const rank = document.createElement("span"); rank.className = "rank"; rank.textContent = ["🥇","🥈","🥉"][i] || (i+1);
+        const info = document.createElement("div"); info.className = "pname";
+        const name = document.createElement("div"); name.textContent = p.name;
+        const realm = document.createElement("div"); realm.className = "prealm"; realm.textContent = p.realm;
+        info.append(name, realm);
+        const qi = document.createElement("span"); qi.className = "pqi"; qi.textContent = fmt(p.qi);
+        li.append(rank, info, qi); ol.appendChild(li);
+      });
+    });
+  </script>
+</body>
+</html>
