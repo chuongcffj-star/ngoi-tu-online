@@ -1,0 +1,13 @@
+{
+  "name": "ngoi-tu-online",
+  "version": "1.0.0",
+  "description": "Game ngoi tu online co nhieu nguoi choi bang Socket.IO",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "socket.io": "^4.8.1"
+  }
+}
